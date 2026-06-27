@@ -1,0 +1,97 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global Safety Net - default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Global Helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        (request.auth.token.email == "yaikobdiriba22@gmail.com" && request.auth.token.email_verified == true) ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Entity validations
+    function isValidProject(data) {
+      return data.title is string && data.title.size() > 0 && data.title.size() <= 200 &&
+             data.description is string && data.description.size() > 0 && data.description.size() <= 5000 &&
+             data.category is string && (
+               data.category == "Web Development" || 
+               data.category == "Full-Stack Applications" || 
+               data.category == "IT Support" || 
+               data.category == "Network Administration" || 
+               data.category == "Digital Solutions"
+             ) &&
+             data.technologies is list && data.technologies.size() <= 20 &&
+             data.featured is bool &&
+             data.image is string && data.image.size() <= 1000 &&
+             data.githubUrl is string && data.githubUrl.size() <= 1000 &&
+             data.liveUrl is string && data.liveUrl.size() <= 1000;
+    }
+
+    function isValidContactMessage(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.email is string && data.email.size() > 0 && data.email.size() <= 200 &&
+             data.subject is string && data.subject.size() > 0 && data.subject.size() <= 200 &&
+             data.message is string && data.message.size() > 0 && data.message.size() <= 10000 &&
+             data.status is string && (data.status == "unread" || data.status == "read" || data.status == "archived");
+    }
+
+    function isValidAdminRecord(data) {
+      return data.uid is string && data.uid == request.auth.uid &&
+             data.email is string && data.email.size() <= 200 &&
+             data.role == "admin";
+    }
+
+    // Projects rules
+    match /projects/{projectId} {
+      allow get, list: if true;
+      allow create: if isAdmin() && isValidId(projectId) && isValidProject(incoming()) && 
+                    incoming().createdAt == request.time && incoming().updatedAt == request.time;
+      allow update: if isAdmin() && isValidId(projectId) && isValidProject(incoming()) && 
+                    incoming().createdAt == existing().createdAt && incoming().updatedAt == request.time;
+      allow delete: if isAdmin();
+    }
+
+    // Contact messages rules
+    match /contactMessages/{messageId} {
+      allow create: if isValidId(messageId) && isValidContactMessage(incoming()) && incoming().createdAt == request.time && incoming().status == "unread";
+      allow get, list, delete: if isAdmin();
+      allow update: if isAdmin() && isValidId(messageId) && isValidContactMessage(incoming()) &&
+                    incoming().name == existing().name &&
+                    incoming().email == existing().email &&
+                    incoming().subject == existing().subject &&
+                    incoming().message == existing().message &&
+                    incoming().createdAt == existing().createdAt &&
+                    incoming().diff(existing()).affectedKeys().hasOnly(['status']);
+    }
+
+    // Admins rules
+    match /admins/{adminId} {
+      allow get: if isAdmin();
+      allow list: if isAdmin();
+      allow create, update: if isAdmin() && isValidId(adminId) && isValidAdminRecord(incoming()) && incoming().createdAt == request.time;
+      allow delete: if isAdmin() && adminId != request.auth.uid;
+    }
+  }
+}
