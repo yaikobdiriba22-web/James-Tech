@@ -14,58 +14,8 @@ import {
 } from "firebase/firestore";
 
 // Default portfolio projects as a robust fallback and seed
-const DEFAULT_PROJECTS: Omit<Project, "id">[] = [
-  {
-    title: "James Tech Client Portal",
-    description: "A secure, responsive full-stack customer dashboard designed for legal and medical clients to submit service tickets, monitor system/network uptime reports, and process digital retainer payments.",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80",
-    category: "Full-Stack Applications",
-    technologies: ["React", "Express", "Firebase Auth", "Firestore", "Tailwind CSS"],
-    githubUrl: "https://github.com/jamestech/client-portal",
-    liveUrl: "https://portal.jamestech.com",
-    featured: true
-  },
-  {
-    title: "Enterprise Network Monitor",
-    description: "A high-frequency real-time network telemetry monitor utilizing SNMP and interactive network maps. Deployed on-premise at medical complexes to track 150+ dynamic ethernet terminals.",
-    image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80",
-    category: "Network Administration",
-    technologies: ["Node.js", "D3.js", "WebSockets", "SNMP Protocol", "Linux Daemon"],
-    githubUrl: "https://github.com/jamestech/network-telemetry",
-    liveUrl: "https://netmon.jamestech.com",
-    featured: true
-  },
-  {
-    title: "MediSync Clinic Infrastructure Setup",
-    description: "A complete overhaul and modernization of a veterinary group's regional networks. Automated systems deployment with Ansible, active directory domains, and secure offsite backups.",
-    image: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80",
-    category: "IT Support",
-    technologies: ["Linux", "Nginx", "Ansible", "Active Directory", "Veeam Backup"],
-    githubUrl: "https://github.com/jamestech/ansible-active-directory",
-    liveUrl: "https://jamestech.com/case-studies/medisync",
-    featured: true
-  },
-  {
-    title: "OmniRetail Headless E-Commerce",
-    description: "A lightning-fast, SEO-optimized e-commerce portal utilizing headless APIs. Includes instant card processing, customizable inventory filters, and multi-tenant store panels.",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
-    category: "Web Development",
-    technologies: ["React", "Next.js", "GraphQL", "Stripe API", "Tailwind CSS"],
-    githubUrl: "https://github.com/jamestech/headless-retail",
-    liveUrl: "https://omnicart.jamestech.com",
-    featured: false
-  },
-  {
-    title: "CloudDoc Automated Intake Engine",
-    description: "A paperless medical office intake engine utilizing Cloud Vision OCR models to extract and digitize handwritten intake forms into patient charts. Saves front-office staff over 12 hours a week.",
-    image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=800&q=80",
-    category: "Digital Solutions",
-    technologies: ["Node.js", "Google Cloud Vision OCR", "Firebase Storage", "React"],
-    githubUrl: "https://github.com/jamestech/ocr-intake",
-    liveUrl: "https://clouddoc.jamestech.com",
-    featured: false
-  }
-];
+// Legacy project API retained for the admin dashboard. Public academy content never seeds fabricated projects.
+const DEFAULT_PROJECTS: Omit<Project, "id">[] = [];
 
 // Helper to seed projects
 async function seedDefaultProjects() {
@@ -102,30 +52,7 @@ export const API = {
       }) as Project[];
 
       // If empty and logged in as admin, trigger auto-seed
-      if (projects.length === 0 && auth.currentUser?.email === "yaikobdiriba22@gmail.com") {
-        await seedDefaultProjects();
-        return this.getProjects();
-      }
-
-      // If database is empty for standard visitors, show default list
-      if (projects.length === 0) {
-        return DEFAULT_PROJECTS.map((p, idx) => ({
-          id: `default-${idx}`,
-          ...p,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        })) as Project[];
-      }
-
-      return projects;
-    } catch (err) {
-      console.error("Error fetching projects from Firestore, using fallbacks:", err);
-      return DEFAULT_PROJECTS.map((p, idx) => ({
-        id: `default-${idx}`,
-        ...p,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      })) as Project[];
+      if (projects.length === 0) return [];
     }
   },
 
