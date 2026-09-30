@@ -7,7 +7,8 @@ import { getAuth } from "firebase-admin/auth";
 import { GoogleGenAI } from "@google/genai";
 import firebaseConfig from "./firebase-applet-config.json" with { type: "json" };
 
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
+const HOST = process.env.HOST || "0.0.0.0";
 
 // Initialize Firebase Admin SDK
 try {
@@ -506,7 +507,7 @@ Instructions:
   } else {
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
-    app.get("*", (req, res) => {
+    app.get("/{*splat}", (_req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
     });
   }
@@ -516,4 +517,4 @@ Instructions:
   });
 }
 
-startServer();
+startServer().catch((error) => {\n  console.error("Failed to start James Tech server:", error);\n  process.exit(1);\n});
