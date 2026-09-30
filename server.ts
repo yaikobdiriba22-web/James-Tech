@@ -316,14 +316,9 @@ Please write a highly professional, helpful, and personalized email draft reply 
 Your contact details are:
 - Phone: 0922067302
 - Email: yaikobdiriba22@gmail.com
-- Location: Silicon Valley HQ (1200 Tech Parkway, Suite 400, Silicon Valley, CA 94025)
+- Location: Contact James Tech for the current location.
 
-Services offered:
-1. Custom Web Development (React, Next.js, headless architectures)
-2. Full-Stack Cloud Applications (Node.js, Express, Firebase/Firestore, database integrations)
-3. IT Support & Infrastructure Overhauls (domain administration, backups, on-prem setups)
-4. Network Administration & Telemetry (VPN configs, ethernet terminals, high-frequency network monitoring)
-5. AI Integration Solutions (incorporating OCR, natural language processing, Gemini models)
+Academy programs include Scratch & Game Development, Web Development, Python Programming, AI & Emerging Technology, Robotics & STEM, and UI/UX & Digital Creativity.
 
 Instructions:
 - Be highly helpful, polite, and technical yet easy to understand.
